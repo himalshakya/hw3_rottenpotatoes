@@ -29,6 +29,42 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rbi
-  debugger
-  puts "Testing..."
+  checking = uncheck == nil ? "check" : "uncheck"
+  rating_list.split(",").each do |rate|
+    "When I #{checking} #{rate}"
+  end
+end
+
+When /I press (.*)/ do |action|
+   "When I press #{action}"
+end
+
+Then /I should see: (.*)/ do |movie_list|
+    movie_list.split(",").each do |movie|
+        "Then I should see #{movie}"
+    end
+end
+
+Then /I should not see: (.*)/ do |movie_list|
+    movie_list.split(",").each do |movie|
+        "Then I should not see #{movie}"
+    end
+end
+
+Then /I should see all of the movies/ do
+  rows = page.all('table#movies tbody tr')
+  assert rows.count == Movie.all.count
+end
+
+Then /I should see (.*) before (.*)/ do |before, after|
+  rows = page.all('table#movies tbody tr')
+  before_index = -1
+  after_index = -1
+  rows.each_with_index do |row, index|
+    before_index = index if row.all('td')[0].text == before
+    after_index = index if row.all('td')[0].text == after
+  end
+  assert before_index > 0
+  assert after_index > 0
+  assert before_index < after_index
 end
